@@ -1,0 +1,9 @@
+http://www.bseindia.com/stockinfo/stockprc2_excel.aspx?scripcd=500488&FromDate=1/1/2001&ToDate=6/5/2011&OldDMY=D&ScripName=ABBOT
+
+
+http://www.bseindia.com/stockinfo/stockprc2_excel.aspx?scripcd=523395&FromDate=1/1/2001&ToDate=6/5/2011&OldDMY=D&ScripName=
+
+
+
+
+http://www.bseindia.com/stockinfo/indices_main_excel.aspx?ind=BSE500&fromDate=01/01/2001&toDate=07/05/2011&DMY=D#

@@ -1,0 +1,10 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual Studio 2005
+Project("{4F174C21-8C12-11D0-8340-0000F80270F8}") = "GetPrices_SQL_Project", "GetPrices_SQL_Project.dbp", "{A973245E-76A7-4FCB-AFAE-FBE4CD1CFF0C}"
+EndProject
+Global
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
