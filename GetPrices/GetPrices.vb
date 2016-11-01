@@ -1,10 +1,6 @@
-﻿Imports System.Data
-Imports System.Data.SqlClient
+﻿Imports System.Data.SqlClient
 Imports System.Net
 Imports System.IO
-Imports System.Xml
-Imports DAL
-Imports DAL.NetDB
 Imports System.Data.OleDb
 
 
