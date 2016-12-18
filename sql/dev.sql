@@ -199,15 +199,16 @@ declare @tbl table (s varchar(50))
 
 insert @tbl
 EXEC	[dbo].[csp_ReadCSV]
-		@filename = N'ivv.csv',
+		@filename = N'IJR.csv',
 		@dbDir = N'c:\stockmon',
 		@whereclause = N'1=1'
 
 delete from @tbl where s like '%.%'
 delete from @tbl where s like '%--%'
 delete from @tbl where s like '%/%'
---insert tbl_Ticker
-select s, 1, null, '3/20/2015' from  @tbl 
+
+insert tbl_Ticker
+select s, 1, null, '11/25/2016' from  @tbl 
 left outer join tbl_Ticker T on T.db_strTicker = s
 where db_strTicker is null
 order by T.db_strTicker

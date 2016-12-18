@@ -78,8 +78,8 @@ while @idx < @mxid
 
 
 -- =================
-IF OBJECT_ID('tempdb..#TBL_EMA10_RT') IS NOT NULL BEGIN
-	DROP TABLE #TBL_EMA10_RT
+IF OBJECT_ID('tempdb..#TBL_EMA25_RT') IS NOT NULL BEGIN
+	DROP TABLE #TBL_EMA25_RT
 END
 
 declare @tblA table (QuoteId int identity, StockID int, QuoteDay datetime, QuoteClose dec(9,3) )
@@ -87,50 +87,53 @@ declare @tblA table (QuoteId int identity, StockID int, QuoteDay datetime, Quote
 insert @tblA
 select db_ticker_id, db_dt, db_close
 from tbl_Prices
-where db_ticker_id = 827
-and db_dt between '12-1-2006' and '9-30-2016'
+where db_ticker_id = 989
+and db_dt between '1-1-2014' and '12-16-2016'
+order by db_dt
 
-SELECT *, CAST(NULL AS FLOAT) AS EMA10 INTO #TBL_EMA10_RT FROM @tblA
+SELECT *, CAST(NULL AS FLOAT) AS EMA25 INTO #TBL_EMA25_RT FROM @tblA
 
-CREATE UNIQUE CLUSTERED INDEX EMA10_IDX_RT ON #TBL_EMA10_RT (StockId, QuoteId)
+CREATE UNIQUE CLUSTERED INDEX EMA25_IDX_RT ON #TBL_EMA25_RT (StockId, QuoteId)
 
 IF OBJECT_ID('tempdb..#TBL_START_AVG') IS NOT NULL BEGIN
 	DROP TABLE #TBL_START_AVG
 END
 
-SELECT StockId, AVG(QuoteClose) AS Start_Avg INTO #TBL_START_AVG FROM @tblA WHERE QuoteId <= 12 GROUP BY StockId
+SELECT StockId, AVG(QuoteClose) AS Start_Avg INTO #TBL_START_AVG FROM @tblA WHERE QuoteId <= 25 GROUP BY StockId
 
-DECLARE @C FLOAT = 2.0 / (1 + 12), @EMA10 FLOAT
+DECLARE @C FLOAT = 2.0 / (1 + 25), @EMA25 FLOAT
 
 UPDATE
 	T1
 SET
-	@EMA10 =
+	@EMA25 =
 		CASE
-			WHEN QuoteId = 12 then T2.Start_Avg
-			WHEN QuoteId > 12 then T1.QuoteClose * @C + @EMA10 * (1 - @C)
+			WHEN QuoteId = 25 then T2.Start_Avg
+			WHEN QuoteId > 25 then T1.QuoteClose * @C + @EMA25 * (1 - @C)
 		END
-	,EMA10 = @EMA10 
+	,EMA25 = @EMA25 
 FROM
-	#TBL_EMA10_RT T1
+	#TBL_EMA25_RT T1
 JOIN
 	#TBL_START_AVG T2
 ON
 	T1.StockId = T2.StockId
 OPTION (MAXDOP 1)
 
---SELECT StockId, QuoteId, QuoteDay, QuoteClose, CAST(EMA10 AS NUMERIC(10,2)) AS EMA10 FROM #TBL_EMA10_RT
+SELECT StockId, QuoteId, QuoteDay, QuoteClose, CAST(EMA25 AS NUMERIC(10,2)) AS EMA25 FROM #TBL_EMA25_RT
 
-select StockId, QuoteId, QuoteDay, QuoteClose, P.db_avg as EMA6, CAST(EMA10 AS NUMERIC(10,2)) AS EMA12, 
-case when P.db_avg > X.EMA10 then 1 else 0 end as BUY
-from #TBL_EMA10_RT X, tbl_Return_Rank RR, tbl_Prices P
-where X.StockID = RR.tid
-and X.QuoteDay = RR.dt
-and RR.tid = P.db_ticker_id
-and RR.dt = P.db_dt
-and RR.tid = X.StockID
-and RR.dt = X.QuoteDay
-order by RR.dt
+select StockId, QuoteId, QuoteDay, QuoteClose, P.db_MA50 as EMA6, CAST(EMA25 AS NUMERIC(10,2)) as EMA25, 
+case when P.db_avg > X.EMA25 then 1 else 0 end as BUY
+from #TBL_EMA25_RT X
+--, tbl_Return_Rank RR
+, tbl_Prices P
+where X.StockID = P.db_ticker_id
+and X.QuoteDay = P.db_dt
+--and RR.tid = P.db_ticker_id
+--and RR.dt = P.db_dt
+--and RR.tid = X.StockID
+--and RR.dt = X.QuoteDay
+order by P.db_dt
 
 --===================
 

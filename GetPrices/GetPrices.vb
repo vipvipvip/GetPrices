@@ -121,8 +121,8 @@ Module GetPrices
             'If (dnload <> 0) Then downloadFromURL(u, fn)
             'ProcFn(sd.ToString("d-MMM-yyyy") & ".csv", DATADIR, sd.ToString("d-MMM-yyyy"))
         Catch ex As Exception
-            'Console.WriteLine(sd + " ---> " + ex.ToString)
-        End Try
+      Console.WriteLine(sd + " ---> " + ex.ToString + " -- TICKER " + strTicker)
+    End Try
         'End If
         'sd = DateAdd(DateInterval.Day, 1, sd)
         'End While

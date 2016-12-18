@@ -85,7 +85,7 @@ while exists(select * from @tbl where idx = @i)
 	set @tempMIDDLE = REPLACE(@tempMIDDLE, 'real', 'Single')
 	set @tempMIDDLE = REPLACE(@tempMIDDLE, 'decimal', 'double')
 	set @tempMIDDLE = REPLACE(@tempMIDDLE, 'tinyint', 'Byte')
-	set @tempMIDDLE = REPLACE(@tempMIDDLE, 'money', 'double')
+	set @tempMIDDLE = REPLACE(@tempMIDDLE, 'money', 'decimal')
 	set @tempMIDDLE = REPLACE(@tempMIDDLE, 'numeric', 'long')
 
 

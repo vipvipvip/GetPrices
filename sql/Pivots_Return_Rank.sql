@@ -28,18 +28,18 @@ PIVOT
 	FOR Src.db_strTicker in ([SPY],[TLT])
 ) as Pvt
 --- TIA2003 Price
-select convert(char(2),month(dt)) + '-' + convert(char(2),day(dt)) + '-' + convert(char(4),year(dt)) as dte, round([SPY],2) as SPY,round([TLT],2) as TLT, 'TIA2003' as DataSet
+select convert(char(2),month(dt)) + '-' + convert(char(2),day(dt)) + '-' + convert(char(4),year(dt)) as dte, round([SPY],2) as SPY,round([AGG],2) as AGG, 'TIA2003' as DataSet
 from (
 select T.db_strTicker , FN.dt as dt, FN.price 
 from tbl_Return_Rank FN
 inner join tbl_Ticker T on FN.tid  = T.db_ticker_id    
-where T.db_strticker in ('SPY','TLT')
+where T.db_strticker in ('SPY','AGG')
 and FN.dt > '12-31-2002'
 
 ) as Src
 PIVOT
 (	sum(Src.price)
-	FOR Src.db_strTicker in ([SPY],[TLT])
+	FOR Src.db_strTicker in ([SPY],[AGG])
 ) as Pvt
 
 --- TDA Rank
@@ -100,39 +100,6 @@ PIVOT
 (	sum(Src.price)
 	FOR Src.db_strTicker in ([QQQ],[TLT])
 ) as Pvt
-
-if (1=0)
-begin
---- TDA_CAP Rank
-select convert(char(2),month(dt)) + '-' + convert(char(2),day(dt)) + '-' + convert(char(4),year(dt)) as dte, [IVV],[VO],[VB],[VEU],[TLT], 'TDA_CAP' as DataSet
-from (
-select T.db_strTicker , FN.dt as dt, FN.rRank 
-from tbl_Return_Rank FN
-inner join tbl_Ticker T on FN.tid  = T.db_ticker_id    
-where T.db_strticker in ('IVV',	'VO','VB','VEU',	'TLT')
-and FN.dt > '12-31-2006'
-
-) as Src
-PIVOT
-(	sum(Src.rRank)
-	FOR Src.db_strTicker in ([IVV],[VO],[VB],[VEU],[TLT])
-) as Pvt
-
---- TDA_CAP Price
-select convert(char(2),month(dt)) + '-' + convert(char(2),day(dt)) + '-' + convert(char(4),year(dt)) as dte, round([IVV],2) as IVV,round([VO],2) as VO,round([VB],2) as VB,round([VEU],2) as VEU,round([TLT],2) as TLT, 'TDA_Cap' as DataSet
-from (
-select T.db_strTicker , FN.dt as dt, FN.price
-from tbl_Return_Rank FN
-inner join tbl_Ticker T on FN.tid  = T.db_ticker_id    
-where T.db_strticker in ('IVV',	'VO','VB','VEU',	'TLT')
-and FN.dt > '12-31-2006'
-
-) as Src
-PIVOT
-(	sum(Src.price)
-	FOR Src.db_strTicker in ([IVV],[VO],[VB],[VEU],[TLT])
-) as Pvt
-end
 --- FID Rank
 select convert(char(2),month(dt)) + '-' + convert(char(2),day(dt)) + '-' + convert(char(4),year(dt)) as dte, [IWV],[EEM],[TLT], 'FID' as DataSet
 from (
@@ -165,33 +132,33 @@ PIVOT
 if (1=0)
 begin
 --- SPDR Rank
-select convert(char(2),month(dt)) + '-' + convert(char(2),day(dt)) + '-' + convert(char(4),year(dt)) as dte, [VCR],[VDC],[VDE],[VFH],[VHT],[VIS],[VAW],[VGT],[VPU],[VNQ],[TLT], 'SPDR' as DataSet
+select convert(char(2),month(dt)) + '-' + convert(char(2),day(dt)) + '-' + convert(char(4),year(dt)) as dte, [VCR],[VDC],[VDE],[VFH],[VHT],[VIS],[VAW],[VGT],[VPU],[VNQ],[AGG], 'SPDR' as DataSet
 from (
 select T.db_strTicker , FN.dt as dt, FN.rRank 
 from tbl_Return_Rank FN
 inner join tbl_Ticker T on FN.tid  = T.db_ticker_id    
-where T.db_strticker in ('VCR','VDC','VDE','VFH','VHT','VIS','VAW','VGT','VPU','VNQ','TLT')
+where T.db_strticker in ('VCR','VDC','VDE','VFH','VHT','VIS','VAW','VGT','VPU','VNQ','AGG')
 and FN.dt > '12-31-2006'
 
 ) as Src
 PIVOT
 (	sum(Src.rRank)
-	FOR Src.db_strTicker in ([VCR],[VDC],[VDE],[VFH],[VHT],[VIS],[VAW],[VGT],[VPU],[VNQ],[TLT])
+	FOR Src.db_strTicker in ([VCR],[VDC],[VDE],[VFH],[VHT],[VIS],[VAW],[VGT],[VPU],[VNQ],[AGG])
 ) as Pvt
 order by dt
 --- SPDR Price
-select convert(char(2),month(dt)) + '-' + convert(char(2),day(dt)) + '-' + convert(char(4),year(dt)) as dte, round([VCR],2) as VCR,round([VDC],2) as VDC,round([VDE],2) as VDE,round([VFH],2) as VFH,round([VHT],2) as VHT,round([VIS],2) as VIS,round([VAW],2) as VAW,round([VGT],2) as VGT,round([VPU],2) as VPU,round([VNQ],2) as VNQ,round([TLT],2) as TLT, 'SPDR' as DataSet
+select convert(char(2),month(dt)) + '-' + convert(char(2),day(dt)) + '-' + convert(char(4),year(dt)) as dte, round([VCR],2) as VCR,round([VDC],2) as VDC,round([VDE],2) as VDE,round([VFH],2) as VFH,round([VHT],2) as VHT,round([VIS],2) as VIS,round([VAW],2) as VAW,round([VGT],2) as VGT,round([VPU],2) as VPU,round([VNQ],2) as VNQ,round([AGG],2) as AGG, 'SPDR' as DataSet
 from (
 select T.db_strTicker , FN.dt as dt, FN.price
 from tbl_Return_Rank FN
 inner join tbl_Ticker T on FN.tid  = T.db_ticker_id    
-where T.db_strticker in ('VCR','VDC','VDE','VFH','VHT','VIS','VAW','VGT','VPU','VNQ','TLT')
+where T.db_strticker in ('VCR','VDC','VDE','VFH','VHT','VIS','VAW','VGT','VPU','VNQ','AGG')
 and FN.dt > '12-31-2006'
 
 ) as Src
 PIVOT
 (	sum(Src.price)
-	FOR Src.db_strTicker in ([VCR],[VDC],[VDE],[VFH],[VHT],[VIS],[VAW],[VGT],[VPU],[VNQ],[TLT])
+	FOR Src.db_strTicker in ([VCR],[VDC],[VDE],[VFH],[VHT],[VIS],[VAW],[VGT],[VPU],[VNQ],[AGG])
 ) as Pvt
 order by dt
 end
@@ -258,6 +225,38 @@ PIVOT
 ) as Pvt
 end
 
+--- TDA_CAP Rank
+select convert(char(2),month(dt)) + '-' + convert(char(2),day(dt)) + '-' + convert(char(4),year(dt)) as dte, [SPY],[VO],[VB],[VEU],[TLT], 'TDA_CAP' as DataSet
+from (
+select T.db_strTicker , FN.dt as dt, FN.rRank 
+from tbl_Return_Rank FN
+inner join tbl_Ticker T on FN.tid  = T.db_ticker_id    
+where T.db_strticker in ('SPY',	'VO','VB','VEU',	'TLT')
+and FN.dt > '12-31-2006'
+
+) as Src
+PIVOT
+(	sum(Src.rRank)
+	FOR Src.db_strTicker in ([SPY],[VO],[VB],[VEU],[TLT])
+) as Pvt
+
+--- TDA_CAP Price
+select convert(char(2),month(dt)) + '-' + convert(char(2),day(dt)) + '-' + convert(char(4),year(dt)) as dte, round([SPY],2) as SPY,round([VO],2) as VO,round([VB],2) as VB,round([VEU],2) as VEU,round([TLT],2) as TLT, 'TDA_Cap' as DataSet
+from (
+select T.db_strTicker , FN.dt as dt, FN.price
+from tbl_Return_Rank FN
+inner join tbl_Ticker T on FN.tid  = T.db_ticker_id    
+where T.db_strticker in ('SPY',	'VO','VB','VEU',	'TLT')
+and FN.dt > '12-31-2006'
+
+) as Src
+PIVOT
+(	sum(Src.price)
+	FOR Src.db_strTicker in ([SPY],[VO],[VB],[VEU],[TLT])
+) as Pvt
+
+if (1=0)
+begin
 --AOX
 select convert(char(2),month(dt)) + '-' + convert(char(2),day(dt)) + '-' + convert(char(4),year(dt)) as dte, coalesce([AOA],0) as [AOA], coalesce([AOR],0) as [AOR],	coalesce([AOM],0) as [AOM],	coalesce([AOK],0) as [AOK], [TLT], 'AOX' as DataSet
 from (
@@ -286,7 +285,7 @@ PIVOT
 (	sum(Src.price)
 	FOR Src.db_strTicker in ([AOA],	[AOR],	[AOM],	[AOK],[TLT])
 ) as Pvt
-
+end
 if (1=0)
 begin
 --Fid MF
@@ -386,31 +385,31 @@ end
 if (1=0)
 begin
 --INCOME
-select convert(char(2),month(dt)) + '-' + convert(char(2),day(dt)) + '-' + convert(char(4),year(dt)) as dte, coalesce([PFF],0) as [PFF], coalesce([IDV],0) as [IDV],	coalesce([HDV],0) as [HDV],	coalesce([HYG],0) as [HYG], [TLT], 'INCOME' as DataSet
+select convert(char(2),month(dt)) + '-' + convert(char(2),day(dt)) + '-' + convert(char(4),year(dt)) as dte, coalesce([PFF],0) as [PFF], coalesce([IDV],0) as [IDV],	coalesce([HDV],0) as [HDV],	coalesce([HYG],0) as [HYG], [AGG], 'INCOME' as DataSet
 from (
 select T.db_strTicker , FN.dt as dt, FN.rRank 
 from tbl_Return_Rank FN
 inner join tbl_Ticker T on FN.tid  = T.db_ticker_id    
-where T.db_strticker in ('PFF',	'IDV',	'HDV',	'HYG', 'TLT')
+where T.db_strticker in ('PFF',	'IDV',	'HDV',	'HYG', 'AGG')
 and FN.dt > '12-31-2006'
 
 ) as Src
 PIVOT
 (	sum(Src.rRank)
-	FOR Src.db_strTicker in ([PFF],	[IDV],[HDV],[HYG],[TLT])
+	FOR Src.db_strTicker in ([PFF],	[IDV],[HDV],[HYG],[AGG])
 ) as Pvt
 --- INCOME Price
-select convert(char(2),month(dt)) + '-' + convert(char(2),day(dt)) + '-' + convert(char(4),year(dt)) as dte, coalesce(round([PFF],2),0) as PFF, coalesce(round([IDV],2),0) as IDV,coalesce(round([HDV],2),0) as HDV,coalesce(round([HYG],2),0) as HYG, round([TLT],2) as TLT, 'INCOME' as DataSet
+select convert(char(2),month(dt)) + '-' + convert(char(2),day(dt)) + '-' + convert(char(4),year(dt)) as dte, coalesce(round([PFF],2),0) as PFF, coalesce(round([IDV],2),0) as IDV,coalesce(round([HDV],2),0) as HDV,coalesce(round([HYG],2),0) as HYG, round([AGG],2) as AGG, 'INCOME' as DataSet
 from (
 select T.db_strTicker , FN.dt as dt, FN.price 
 from tbl_Return_Rank FN
 inner join tbl_Ticker T on FN.tid  = T.db_ticker_id    
-where T.db_strticker in ('PFF',	'IDV',	'HDV',	'HYG','TLT')
+where T.db_strticker in ('PFF',	'IDV',	'HDV',	'HYG','AGG')
 and FN.dt > '12-31-2006'
 
 ) as Src
 PIVOT
 (	sum(Src.price)
-	FOR Src.db_strTicker in ([PFF],	[IDV],	[HDV],	[HYG],[TLT])
+	FOR Src.db_strTicker in ([PFF],	[IDV],	[HDV],	[HYG],[AGG])
 ) as Pvt
 end
