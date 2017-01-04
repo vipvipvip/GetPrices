@@ -112,8 +112,8 @@ Module GetPrices
                         Console.WriteLine(" bytes=0")
                         Continue While
                     End Try
-                    ProcFn(strTicker, drTickers("db_ticker_id"), fn, DATADIR)
-                End While
+          ProcFn(strTicker, drTickers("db_ticker_id"), drTickers("db_type"), fn, DATADIR)
+        End While
 
 
             End If
@@ -283,12 +283,12 @@ Module GetPrices
             dr.Close()
         End Try
     End Sub
-    Private Sub ProcFn(ByVal strTabName As String, ByVal ticker_id As Integer, ByVal fn As String, ByVal dbDir As String)
-        Dim dr As OleDbDataReader
-        Dim arAdd() As SqlParameter
-        Dim wc As String = "1=1"
-        Dim sql As String
-        Dim nRecs As Integer
+  Private Sub ProcFn(ByVal strTabName As String, ByVal ticker_id As Integer, ByVal typ As Integer, ByVal fn As String, ByVal dbDir As String)
+    Dim dr As OleDbDataReader
+    Dim arAdd() As SqlParameter
+    Dim wc As String = "1=1"
+    Dim sql As String
+    Dim nRecs As Integer
     Try
       If ReadTab(strTabName, dr, fn, _sqcCSV, nRecs) = False Then
         Throw New ApplicationException(fn & " could not be read.")
@@ -300,15 +300,15 @@ Module GetPrices
           '          nRecs = DAL.NetDB.ExecuteScalar(_sqcPrices, CommandType.Text, "select count(*) from tbl_Prices where db_ticker_id = " & ticker_id & " and db_dt = '" & dr("Date") & "'")
           '          If nRecs <= 0 Then
           SetSQLParmVal(arAdd, "@db_ticker_id", ticker_id)
-            If (dr("Volume") >= 2147483647) Then
-              SetSQLParmVal(arAdd, "@db_volume", 0)
-            Else
-              SetSQLParmVal(arAdd, "@db_volume", dr("Volume"))
-            End If
-            SetSQLParmVal(arAdd, "@db_dt", dr("Date"))
-            SetSQLParmVal(arAdd, "@db_close", dr("Adj Close"))
-            SetSQLParmVal(arAdd, "@db_type", g_type)
-            DAL.NetDB.ExecuteScalar(_sqcPrices, CommandType.StoredProcedure, "csp_tbl_Prices_Add", arAdd)
+          If (dr("Volume") >= 2147483647) Then
+            SetSQLParmVal(arAdd, "@db_volume", 0)
+          Else
+            SetSQLParmVal(arAdd, "@db_volume", dr("Volume"))
+          End If
+          SetSQLParmVal(arAdd, "@db_dt", dr("Date"))
+          SetSQLParmVal(arAdd, "@db_close", dr("Adj Close"))
+          SetSQLParmVal(arAdd, "@db_type", typ)
+          DAL.NetDB.ExecuteScalar(_sqcPrices, CommandType.StoredProcedure, "csp_tbl_Prices_Add", arAdd)
           'Else
           '  sql = "update tbl_Prices set db_close = " & dr("Adj Close")
           '  sql = sql & " where db_ticker_id = " & ticker_id
@@ -325,11 +325,11 @@ Module GetPrices
       DAL.NetDB.ExecuteScalar(_sqcPrices, CommandType.Text, sql)
     Finally
       _sqcPrices.Close()
-            dr.Close()
-        End Try
-    End Sub
+      dr.Close()
+    End Try
+  End Sub
 
-    Private Function SetDates(ByVal db_ticker_id As Integer, ByVal spname As String)
+  Private Function SetDates(ByVal db_ticker_id As Integer, ByVal spname As String)
         Dim ar() As SqlParameter
         Dim dr As SqlDataReader
         today = Now()
