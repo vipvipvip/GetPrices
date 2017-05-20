@@ -53,17 +53,17 @@ and T.db_type=2
 group by T.db_ticker_id, T.db_type, T.db_strTicker
 order by max(db_dt), db_strTicker
 
-declare @dt1 datetime
+declare @sdt1 datetime
 
-select @dt1 = max(db_dt)
+select @sdt1 = max(db_dt)
 from tbl_Prices
 where db_ticker_id = 538
 
 select T.db_strticker, max(db_dt)
 from tbl_Prices P, tbl_Ticker T
 where P.db_ticker_id = T.db_ticker_id
---and T.db_type=2
-and P.db_dt = @dt1
+and T.db_type=2
+and P.db_dt = @sdt1
 group by T.db_strticker, P.db_dt
 order by P.db_dt
 
@@ -73,7 +73,7 @@ from tbl_Prices P, tbl_Ticker T
 where P.db_ticker_id = T.db_ticker_id
 and T.db_strTicker = 'SPY'
 --and db_dt = (select max(db_dt) from tbl_Prices)
---and db_dt = @dt1
+--and db_dt = @sdt1
 --and T.db_ticker_id = 454
 --and datepart(dw,P.db_dt) = 2 -- Monday
 order by P.db_dt
@@ -289,7 +289,7 @@ EXECUTE [csp_Calc_Freq_Monthly]
 EXEC	[csp_Get_FR_By_Date]
 		--@sdt = N'2-1-2013'
 
-EXECUTE [csp_Calc_Freq_For_Strategy_Tickers] @dt='3-1-2013'
+EXECUTE [csp_Calc_Freq_For_Strategy_Tickers] @sdt='3-1-2013'
  
 SELECT
 	 FR.*, T.db_strTicker, P.db_close
@@ -340,7 +340,7 @@ SELECT T.db_strTicker, FN.*, P.db_close
   and FN.db_ticker_id = P.db_ticker_id
   and FN.db_dt > '12-20-2006'
    
-EXECUTE [csp_Calc_FiveNum_For_Strategy_Tickers] 5, @dt='3-6-2013'
+EXECUTE [csp_Calc_FiveNum_For_Strategy_Tickers] 5, @sdt='3-6-2013'
 
 -- run this every month after tbl_Prices is updated.
 update tbl_FiveNum

@@ -22,8 +22,12 @@ Module GetPrices
     Private g_type As Integer '1=US Stocks, 2=ETF
     Private g_Mode As String
     Private g_Action As Integer
-    Private g_startTick As String
-    Dim sd As DateTime = "1-1-2006"
+  Private g_startTick As String
+  Private g_P1 As Integer
+  Private g_P2 As Integer
+  Private g_Cookie As String
+
+  Dim sd As DateTime = "1-1-2006"
     Dim ed As DateTime = "12-31-2020"
     Dim a, b, c, d, e, f As Integer
     Dim today As DateTime
@@ -59,8 +63,15 @@ Module GetPrices
                 Case "ACTION"
                     g_Action = argArr(1)
                 Case "STARTTICK"
-                    g_startTick = argArr(1)
-            End Select
+          g_startTick = argArr(1)
+        Case "P1"
+          g_P1 = argArr(1)
+        Case "P2"
+          g_P2 = argArr(1)
+        Case "Cookie"
+          g_Cookie = argArr(1)
+
+      End Select
         Next
         If g_type = 0 Then
             g_type = 1
@@ -104,8 +115,9 @@ Module GetPrices
                         b = 1
                         c = 2001
                     End If
-                    strUT = URL & "&a=" & a & "&b=" & b & "&c=" & c & "&d=" & d & "&e=" & e & "&f=" & f & "&s=" & strTicker
-                    fn = DATADIR & Replace(strTicker, ".", "_") & ".csv"
+          'strUT = URL & "&a=" & a & "&b=" & b & "&c=" & c & "&d=" & d & "&e=" & e & "&f=" & f & "&s=" & strTicker
+          strUT = "http://query1.finance.yahoo.com/v7/finance/download/" & strTicker & "?period1=" & g_P1 & "&period2=" & g_P2 & "&interval=1d&events=history&crumb=IhF8o1JyWko"
+          fn = DATADIR & Replace(strTicker, ".", "_") & ".csv"
                     Try
                         If (dnload <> 0) Then downloadFromURL(strUT, fn)
                     Catch e As Exception
@@ -239,18 +251,21 @@ Module GetPrices
     Private Sub downloadFromURL(ByVal URL As String, ByVal localPath As String)
         Dim myWebClient As New WebClient
         Console.Write("Downloading from " & URL & " to " & localPath & " .....")
-        If (File.Exists(localPath) = True) Then
-            File.Delete(localPath)
-        End If
-        myWebClient.DownloadFile(URL, localPath)
-        Dim bytes() = myWebClient.DownloadData(URL)
+    If (File.Exists(localPath) = True) Then
+      'File.Delete(localPath)
+
+    Else
+      myWebClient.Headers.Add("cookie", "AO=u=1; YLS=v=1&p=1&n=1; YP=v=AwAAY&d=AEgAMEUCIA1MT8vkJhksoPAaRaBzx1R9dMKlb09sB81mZcdtg5gUAiEAv_yDBTzMabR7XUowToppCAxsToC7FxVQJU8MhxD8w0EA; Y=v=1&n=3g51j2kc8cv8e&p=; F=a=f7NKihsMvS7ShNukBzbYxcxEjAcig1HNhoN69WL.bPSfdzS6kVMgBT.RAY5OfWIU4F_N8KYJnZq8c8DH5Jc_BPRpnA--&b=PGtL&d=Gd70Kyk9vQ--; B=7htj5shb456m3&b=4&d=0eJzXjppYEL6PEIiAPs9NrkVwkw-&s=5v&i=BWaOjcXPcSxXuM_1r4Nu; PRF=%3Dundefined%26t%3DSPY%252B%255EGSPC%252BGE%252BYHOO%252BCIB%252BVDIGX%252BVFINX%252BVBLTX%252BAGG%252BIJR%252BDGRO%252BFLO%252BTLT%252B%26cd%3Dundefined; ucs=tr=1454304599443&fs=1&lnct=1469248462&pnid=&pnct=")
+      myWebClient.DownloadFile(URL, localPath)
+      Dim bytes() = myWebClient.DownloadData(URL)
         If (bytes.Length > 0) Then
             Console.WriteLine(" bytes= " + Convert.ToString(bytes.Length))
             File.WriteAllBytes(localPath, bytes)
         End If
         myWebClient.Dispose()
+    End If
 
-    End Sub
+  End Sub
 
     Private Sub ProcBSEFn(ByVal strTabName As String, ByVal ticker_id As Integer, ByVal fn As String, ByVal dbDir As String)
         Dim dr As OleDbDataReader

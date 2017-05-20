@@ -2,7 +2,7 @@
 This script creates a C# class for a Data Contract for a SQL Table
 */
 declare @tblName varchar(20)
-set @tblName = 'tbl_stats'
+set @tblName = 'tbl_Prices'
 declare @objId int
 
 select @objId = object_id from StockDB.sys.tables where name = @tblName
@@ -80,8 +80,8 @@ while exists(select * from @tbl where idx = @i)
 	set @tempMIDDLE = REPLACE(@tempMIDDLE, '%COLNAME%', @c)
 
 	-- final clean up to make C# happy
-	set @tempMIDDLE = REPLACE(@tempMIDDLE, 'int', 'long')
 	set @tempMIDDLE = REPLACE(@tempMIDDLE, 'smallint', 'long')
+	set @tempMIDDLE = REPLACE(@tempMIDDLE, 'int', 'long')
 	set @tempMIDDLE = REPLACE(@tempMIDDLE, 'real', 'Single')
 	set @tempMIDDLE = REPLACE(@tempMIDDLE, 'decimal', 'double')
 	set @tempMIDDLE = REPLACE(@tempMIDDLE, 'tinyint', 'Byte')

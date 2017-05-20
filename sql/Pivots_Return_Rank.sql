@@ -28,18 +28,18 @@ PIVOT
 	FOR Src.db_strTicker in ([SPY],[TLT])
 ) as Pvt
 --- TIA2003 Price
-select convert(char(2),month(dt)) + '-' + convert(char(2),day(dt)) + '-' + convert(char(4),year(dt)) as dte, round([SPY],2) as SPY,round([AGG],2) as AGG, 'TIA2003' as DataSet
+select convert(char(2),month(dt)) + '-' + convert(char(2),day(dt)) + '-' + convert(char(4),year(dt)) as dte, round([SPY],2) as SPY,round([TLT],2) as TLT, 'TIA2003' as DataSet
 from (
 select T.db_strTicker , FN.dt as dt, FN.price 
 from tbl_Return_Rank FN
 inner join tbl_Ticker T on FN.tid  = T.db_ticker_id    
-where T.db_strticker in ('SPY','AGG')
+where T.db_strticker in ('SPY','TLT')
 and FN.dt > '12-31-2002'
 
 ) as Src
 PIVOT
 (	sum(Src.price)
-	FOR Src.db_strTicker in ([SPY],[AGG])
+	FOR Src.db_strTicker in ([SPY],[TLT])
 ) as Pvt
 
 --- TDA Rank

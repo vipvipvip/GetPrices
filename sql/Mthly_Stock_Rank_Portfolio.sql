@@ -59,11 +59,12 @@ set @srcFN=NULL
 --set @srcFN = 'Top_10.csv'
 --set @srcFN = 'BrandNames.csv'
 --set @srcFN = 'VG_ETF.csv'
+  set @srcFN = 'VG_Equity_ETF.csv'
 --set @srcFN = 'ALL_ETFs.csv'
 --set @srcFN = 'ALL_STOCKS.csv'
 --set @srcFN = '1747.csv'
 --set @srcFN = 'iTOT.csv'
-set @srcFN = 'ivv.csv'
+--set @srcFN = 'ivv.csv'
 --set @srcFN = 'iwr.csv'
 --set @srcFN = 'ijh.csv'
 --set @srcFN = 'ijr.csv'
@@ -97,6 +98,11 @@ if @srcFN is not null
 
 	--insert @tbl
 	--select fn from @tbl2 where fn not in (select fn from @tbl)
+
+	--insert @tbl
+	--select db_strTicker
+	--from tbl_Ticker
+	--where db_type = 2
 
 	insert @tbl
 	select distinct(RR.strTicker)
