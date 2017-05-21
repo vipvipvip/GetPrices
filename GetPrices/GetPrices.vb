@@ -23,8 +23,8 @@ Module GetPrices
     Private g_Mode As String
     Private g_Action As Integer
   Private g_startTick As String
-  Private g_P1 As Integer
-  Private g_P2 As Integer
+  Private g_P1 As String
+  Private g_P2 As String
   Private g_Cookie As String
 
   Dim sd As DateTime = "1-1-2006"
@@ -41,45 +41,53 @@ Module GetPrices
         g_ticker_id = -1
         g_Action = 1
         g_startTick = ""
-        For i = 0 To CmdArgs.Length - 1
-            arg = CmdArgs(i).Trim()
-            argArr = arg.Split("=")
+    For i = 0 To CmdArgs.Length - 1
+      arg = CmdArgs(i).Trim()
+      argArr = arg.Split("=")
 
-            Select Case argArr(0).ToUpper()
-                Case "SD"
-                    sd = argArr(1)
-                Case "ED"
-                    ed = argArr(1)
-                Case "DN"
-                    dnload = argArr(1)
-                Case "TICKER"
-                    strTicker = argArr(1)
-                Case "ID"
-                    g_ticker_id = argArr(1)
-                Case "MODE"
-                    g_Mode = argArr(1)
-                Case "TYPE"
-                    g_type = argArr(1)
-                Case "ACTION"
-                    g_Action = argArr(1)
-                Case "STARTTICK"
+      Select Case argArr(0).ToUpper()
+        Case "SD"
+          sd = argArr(1)
+        Case "ED"
+          ed = argArr(1)
+        Case "DN"
+          dnload = argArr(1)
+        Case "TICKER"
+          strTicker = argArr(1)
+        Case "ID"
+          g_ticker_id = argArr(1)
+        Case "MODE"
+          g_Mode = argArr(1)
+        Case "TYPE"
+          g_type = argArr(1)
+        Case "ACTION"
+          g_Action = argArr(1)
+        Case "STARTTICK"
           g_startTick = argArr(1)
-        Case "P1"
-          g_P1 = argArr(1)
-        Case "P2"
-          g_P2 = argArr(1)
-        Case "Cookie"
-          g_Cookie = argArr(1)
-
       End Select
-        Next
-        If g_type = 0 Then
-            g_type = 1
-            'Console.WriteLine("Provide Type=1 or 2")
-        End If
+    Next
+
+    ' Read cookie
+    Dim idx As Integer
+    idx = 1
+    For Each line As String In File.ReadLines("cookie.txt")
+      Select Case idx
+        Case 1
+          g_P1 = line
+        Case 2
+          g_P2 = line
+        Case 3
+          g_Cookie = line
+      End Select
+      idx = idx + 1
+    Next line
+    If g_type = 0 Then
+      g_type = 1
+      'Console.WriteLine("Provide Type=1 or 2")
+    End If
 
 
-        If g_Mode = "BSE" Then
+    If g_Mode = "BSE" Then
             ProcBSE(strTicker)
             Return
         End If
@@ -255,7 +263,7 @@ Module GetPrices
       'File.Delete(localPath)
 
     Else
-      myWebClient.Headers.Add("cookie", "AO=u=1; YLS=v=1&p=1&n=1; YP=v=AwAAY&d=AEgAMEUCIA1MT8vkJhksoPAaRaBzx1R9dMKlb09sB81mZcdtg5gUAiEAv_yDBTzMabR7XUowToppCAxsToC7FxVQJU8MhxD8w0EA; Y=v=1&n=3g51j2kc8cv8e&p=; F=a=f7NKihsMvS7ShNukBzbYxcxEjAcig1HNhoN69WL.bPSfdzS6kVMgBT.RAY5OfWIU4F_N8KYJnZq8c8DH5Jc_BPRpnA--&b=PGtL&d=Gd70Kyk9vQ--; B=7htj5shb456m3&b=4&d=0eJzXjppYEL6PEIiAPs9NrkVwkw-&s=5v&i=BWaOjcXPcSxXuM_1r4Nu; PRF=%3Dundefined%26t%3DSPY%252B%255EGSPC%252BGE%252BYHOO%252BCIB%252BVDIGX%252BVFINX%252BVBLTX%252BAGG%252BIJR%252BDGRO%252BFLO%252BTLT%252B%26cd%3Dundefined; ucs=tr=1454304599443&fs=1&lnct=1469248462&pnid=&pnct=")
+      myWebClient.Headers.Add("cookie", g_Cookie)
       myWebClient.DownloadFile(URL, localPath)
       Dim bytes() = myWebClient.DownloadData(URL)
         If (bytes.Length > 0) Then
