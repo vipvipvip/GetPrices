@@ -260,8 +260,7 @@ Module GetPrices
         Dim myWebClient As New WebClient
         Console.Write("Downloading from " & URL & " to " & localPath & " .....")
     If (File.Exists(localPath) = True) Then
-      'File.Delete(localPath)
-
+      File.Delete(localPath)
     Else
       myWebClient.Headers.Add("cookie", g_Cookie)
       myWebClient.DownloadFile(URL, localPath)

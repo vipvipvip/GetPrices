@@ -50,8 +50,9 @@ select distinct(T.db_ticker_id), T.db_type, max(P.db_dt),T.db_strTicker
 from tbl_Prices P, tbl_Ticker T
 where P.db_ticker_id = T.db_ticker_id
 and T.db_type=2
+and P.db_dt >= '2017-5-19'
 group by T.db_ticker_id, T.db_type, T.db_strTicker
-order by max(db_dt), db_strTicker
+order by max(db_dt) desc, db_strTicker
 
 declare @sdt1 datetime
 
@@ -59,19 +60,25 @@ select @sdt1 = max(db_dt)
 from tbl_Prices
 where db_ticker_id = 538
 
+select @sdt1
+
 select T.db_strticker, max(db_dt)
 from tbl_Prices P, tbl_Ticker T
 where P.db_ticker_id = T.db_ticker_id
-and T.db_type=2
+and T.db_type=1
 and P.db_dt = @sdt1
 group by T.db_strticker, P.db_dt
 order by P.db_dt
 
 
+--delete from tbl_Prices
+--where db_dt >= '6-02-2017'
+--and db_type=1
+
 select P.db_row_id, P.db_dt, P.db_close
 from tbl_Prices P, tbl_Ticker T
 where P.db_ticker_id = T.db_ticker_id
-and T.db_strTicker = 'SPY'
+and T.db_strTicker = 'MTUM'
 --and db_dt = (select max(db_dt) from tbl_Prices)
 --and db_dt = @sdt1
 --and T.db_ticker_id = 454
@@ -199,7 +206,7 @@ declare @tbl table (s varchar(50))
 
 insert @tbl
 EXEC	[dbo].[csp_ReadCSV]
-		@filename = N'IJR.csv',
+		@filename = N'ishares_Factor.csv',
 		@dbDir = N'c:\stockmon',
 		@whereclause = N'1=1'
 
@@ -208,7 +215,7 @@ delete from @tbl where s like '%--%'
 delete from @tbl where s like '%/%'
 
 insert tbl_Ticker
-select s, 1, null, '11/25/2016' from  @tbl 
+select s, 2, null, '6/4/2017' from  @tbl 
 left outer join tbl_Ticker T on T.db_strTicker = s
 where db_strTicker is null
 order by T.db_strTicker

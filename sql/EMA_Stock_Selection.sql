@@ -1,8 +1,8 @@
-declare @sdt datetime = '5-10-2017'
+declare @sdt datetime = '6-1-2017'
 declare @edt datetime = dateadd(d,11,@sdt)
 print @edt
 declare @typ int
-set @typ = 2
+set @typ = 1
 declare @tbl table (s varchar(30))
 declare @stks table (tick varchar(10), tickId int, dt datetime, cls dec(9,2), Allocation dec(9,2), InvestAmt dec(9,2),  Shares int  )
 
