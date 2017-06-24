@@ -72,11 +72,11 @@ Module GetPrices
     idx = 1
     For Each line As String In File.ReadLines("cookie.txt")
       Select Case idx
+        'Case 1
+        '  g_P1 = line
+        'Case 2
+        '  g_P2 = line
         Case 1
-          g_P1 = line
-        Case 2
-          g_P2 = line
-        Case 3
           g_Cookie = line
       End Select
       idx = idx + 1
@@ -88,223 +88,223 @@ Module GetPrices
 
 
     If g_Mode = "BSE" Then
-            ProcBSE(strTicker)
-            Return
-        End If
-        'If CmdArgs.Length <= 0 Then
-        'sd = GetMaxDate()
-        'sd = DateAdd(DateInterval.Day, 1, sd)
-        'ed = Now()
-        'dnload = 1
-        'End If
+      ProcBSE(strTicker)
+      Return
+    End If
+    'If CmdArgs.Length <= 0 Then
+    'sd = GetMaxDate()
+    'sd = DateAdd(DateInterval.Day, 1, sd)
+    'ed = Now()
+    'dnload = 1
+    'End If
 
-        Dim fn As String = ""
-        _sqcSQL.ConnectionString = _oDAL.GetConnectionString("StockDB", False)
-        _sqcSQL.Open()
-        _sqcPrices.ConnectionString = _oDAL.GetConnectionString("StockDB", False)
-        'While sd <= ed
-        'If (sd.DayOfWeek = DayOfWeek.Saturday Or sd.DayOfWeek = DayOfWeek.Sunday) Then
-        'nothing to do..mkts are closed
-        'Else
-        'Console.WriteLine(sd.ToString("d-MMM-yyyy"))
-        'u = URL.Replace("<DateField>", sd.ToString("d-MMM-yyyy"))
-        Dim drTickers As SqlDataReader
-        Dim strUT As String
-        Try
-            drTickers = GetTickers(strTicker, g_ticker_id)
-            'drTickers = GetRRTickers(strTicker, g_ticker_id)
+    Dim fn As String = ""
+    _sqcSQL.ConnectionString = _oDAL.GetConnectionString("StockDB", False)
+    _sqcSQL.Open()
+    _sqcPrices.ConnectionString = _oDAL.GetConnectionString("StockDB", False)
+    'While sd <= ed
+    'If (sd.DayOfWeek = DayOfWeek.Saturday Or sd.DayOfWeek = DayOfWeek.Sunday) Then
+    'nothing to do..mkts are closed
+    'Else
+    'Console.WriteLine(sd.ToString("d-MMM-yyyy"))
+    'u = URL.Replace("<DateField>", sd.ToString("d-MMM-yyyy"))
+    Dim drTickers As SqlDataReader
+    Dim strUT As String
+    Try
+      drTickers = GetTickers(strTicker, g_ticker_id)
+      'drTickers = GetRRTickers(strTicker, g_ticker_id)
 
-            If drTickers.HasRows Then
-                While drTickers.Read()
-                    strTicker = drTickers("db_strTicker")
-                    SetDates(drTickers("db_ticker_id"), "csp_tbl_Prices_List")
-                    If g_Action = 2 Then
-                        a = 1
-                        b = 1
-                        c = 2001
-                    End If
+      If drTickers.HasRows Then
+        While drTickers.Read()
+          strTicker = drTickers("db_strTicker")
+          SetDates(drTickers("db_ticker_id"), "csp_tbl_Prices_List")
+          If g_Action = 2 Then
+            a = 1
+            b = 1
+            c = 2001
+          End If
           'strUT = URL & "&a=" & a & "&b=" & b & "&c=" & c & "&d=" & d & "&e=" & e & "&f=" & f & "&s=" & strTicker
-          strUT = "http://query1.finance.yahoo.com/v7/finance/download/" & strTicker & "?period1=" & g_P1 & "&period2=" & g_P2 & "&interval=1d&events=history&crumb=IhF8o1JyWko"
+          'strUT = "http://query1.finance.yahoo.com/v7/finance/download/" & strTicker & "?period1=" & g_P1 & "&period2=" & g_P2 & "&interval=1d&events=history&crumb=IhF8o1JyWko"
+          strUT = "https://www.google.com/finance/historical?q=" & strTicker & g_Cookie
           fn = DATADIR & Replace(strTicker, ".", "_") & ".csv"
-                    Try
-                        If (dnload <> 0) Then downloadFromURL(strUT, fn)
-                    Catch e As Exception
-                        Console.WriteLine(" bytes=0")
-                        Continue While
-                    End Try
+          Try
+            If (dnload <> 0) Then downloadFromURL(strUT, fn)
+          Catch e As Exception
+            Console.WriteLine(" bytes=0")
+            Continue While
+          End Try
           ProcFn(strTicker, drTickers("db_ticker_id"), drTickers("db_type"), fn, DATADIR)
         End While
 
 
-            End If
-            'fn = DATADIR & sd.ToString("d-MMM-yyyy") & ".csv"
-            'If (dnload <> 0) Then downloadFromURL(u, fn)
-            'ProcFn(sd.ToString("d-MMM-yyyy") & ".csv", DATADIR, sd.ToString("d-MMM-yyyy"))
-        Catch ex As Exception
+      End If
+      'fn = DATADIR & sd.ToString("d-MMM-yyyy") & ".csv"
+      'If (dnload <> 0) Then downloadFromURL(u, fn)
+      'ProcFn(sd.ToString("d-MMM-yyyy") & ".csv", DATADIR, sd.ToString("d-MMM-yyyy"))
+    Catch ex As Exception
       Console.WriteLine(sd + " ---> " + ex.ToString + " -- TICKER " + strTicker)
     End Try
-        'End If
-        'sd = DateAdd(DateInterval.Day, 1, sd)
-        'End While
-        _sqcCSV.Close()
-        _sqcSQL.Close()
-        _sqcPrices.Close()
-    End Sub
-    Private Sub ProcBSE(ByVal strTicker As String)
-        Dim fn As String = ""
-        Dim dnload As Integer = 0
-        Dim scrip_cd As Integer
+    'End If
+    'sd = DateAdd(DateInterval.Day, 1, sd)
+    'End While
+    _sqcCSV.Close()
+    _sqcSQL.Close()
+    _sqcPrices.Close()
+  End Sub
+  Private Sub ProcBSE(ByVal strTicker As String)
+    Dim fn As String = ""
+    Dim dnload As Integer = 0
+    Dim scrip_cd As Integer
 
-        _sqcSQL.ConnectionString = _oDAL.GetConnectionString("StockDB", False)
-        _sqcSQL.Open()
-        _sqcPrices.ConnectionString = _oDAL.GetConnectionString("StockDB", False)
-        Dim drTickers As SqlDataReader
-        Dim strUT As String
-        Try
-            drTickers = GetBSETickers(g_ticker_id)
-            If drTickers.HasRows Then
-                While drTickers.Read()
-                    scrip_cd = drTickers("db_scrip_cd")
-                    SetBSEDates(drTickers("db_ticker_id"), "csp_tbl_BSE_Prices_List")
-                    If (scrip_cd = 1) Then
-                        strUT = BSE_INDEX_URL & "&FromDate="
-                        strUT = strUT & b & "/" & a & "/" & c & "&ToDate="
-                        strUT = strUT & e & "/" & d & "/" & f
-                    Else
-                        strUT = BSE_STK_URL & "scripcd=" & scrip_cd & "&FromDate="
-                        strUT = strUT & b & "/" & a & "/" & c & "&ToDate="
-                        strUT = strUT & e & "/" & d & "/" & f & "&OldDMY=D&ScripName="
-                    End If
-                    fn = DATADIR & scrip_cd & ".csv"
-                    Try
-                        If (dnload <> 0) Then downloadFromURL(strUT, fn)
-                    Catch e As Exception
-                        Continue While
-                    End Try
-                    ProcBSEFn(scrip_cd, drTickers("db_ticker_id"), fn, DATADIR)
-                End While
+    _sqcSQL.ConnectionString = _oDAL.GetConnectionString("StockDB", False)
+    _sqcSQL.Open()
+    _sqcPrices.ConnectionString = _oDAL.GetConnectionString("StockDB", False)
+    Dim drTickers As SqlDataReader
+    Dim strUT As String
+    Try
+      drTickers = GetBSETickers(g_ticker_id)
+      If drTickers.HasRows Then
+        While drTickers.Read()
+          scrip_cd = drTickers("db_scrip_cd")
+          SetBSEDates(drTickers("db_ticker_id"), "csp_tbl_BSE_Prices_List")
+          If (scrip_cd = 1) Then
+            strUT = BSE_INDEX_URL & "&FromDate="
+            strUT = strUT & b & "/" & a & "/" & c & "&ToDate="
+            strUT = strUT & e & "/" & d & "/" & f
+          Else
+            strUT = BSE_STK_URL & "scripcd=" & scrip_cd & "&FromDate="
+            strUT = strUT & b & "/" & a & "/" & c & "&ToDate="
+            strUT = strUT & e & "/" & d & "/" & f & "&OldDMY=D&ScripName="
+          End If
+          fn = DATADIR & scrip_cd & ".csv"
+          Try
+            If (dnload <> 0) Then downloadFromURL(strUT, fn)
+          Catch e As Exception
+            Continue While
+          End Try
+          ProcBSEFn(scrip_cd, drTickers("db_ticker_id"), fn, DATADIR)
+        End While
 
 
-            End If
-        Catch ex As Exception
-        End Try
-        _sqcCSV.Close()
-        _sqcSQL.Close()
-        _sqcPrices.Close()
-    End Sub
-    Private Function GetBSETickers(ByVal id As Integer) As SqlDataReader
-        Dim ar() As SqlParameter
-        Dim dr As SqlDataReader
-        Try
-            ar = DAL.NetDB.SqlHelperParameterCache.GetSpParameterSet(_sqcSQL, "csp_tbl_BSE_Ticker_List")
-            ar(0).Value = "*"
-            If id > 0 Then
-                ar(1).Value = "db_scrip_cd=" & id
-            Else
-                ar(1).Value = "1=1"
-            End If
+      End If
+    Catch ex As Exception
+    End Try
+    _sqcCSV.Close()
+    _sqcSQL.Close()
+    _sqcPrices.Close()
+  End Sub
+  Private Function GetBSETickers(ByVal id As Integer) As SqlDataReader
+    Dim ar() As SqlParameter
+    Dim dr As SqlDataReader
+    Try
+      ar = DAL.NetDB.SqlHelperParameterCache.GetSpParameterSet(_sqcSQL, "csp_tbl_BSE_Ticker_List")
+      ar(0).Value = "*"
+      If id > 0 Then
+        ar(1).Value = "db_scrip_cd=" & id
+      Else
+        ar(1).Value = "1=1"
+      End If
 
-            dr = DAL.NetDB.ExecuteReader(_sqcSQL, Data.CommandType.StoredProcedure, "csp_tbl_BSE_Ticker_List", ar)
-            GetBSETickers = dr
-        Catch ex As Exception
+      dr = DAL.NetDB.ExecuteReader(_sqcSQL, Data.CommandType.StoredProcedure, "csp_tbl_BSE_Ticker_List", ar)
+      GetBSETickers = dr
+    Catch ex As Exception
 
-        Finally
+    Finally
 
-        End Try
-    End Function
-    Private Function SetBSEDates(ByVal db_ticker_id As Integer, ByVal spname As String)
-        Dim ar() As SqlParameter
-        Dim dr As SqlDataReader
-        today = Now()
-        Try
-            _sqcPrices.Open()
-            ar = DAL.NetDB.SqlHelperParameterCache.GetSpParameterSet(_sqcPrices, spname)
-            ar(0).Value = "max(db_dt)"
-            ar(1).Value = "db_ticker_id = " & db_ticker_id
-            dr = DAL.NetDB.ExecuteReader(_sqcPrices, Data.CommandType.StoredProcedure, spname, ar)
-            If dr.HasRows Then
-                While dr.Read
-                    ed = dr(0)
-                    ed = DateAdd(DateInterval.Day, 1, ed)
-                    a = Month(ed)
-                    b = Day(ed)
-                    c = Year(ed)
-                    d = Month(today)
-                    e = Day(today)
-                    f = Year(today)
+    End Try
+  End Function
+  Private Function SetBSEDates(ByVal db_ticker_id As Integer, ByVal spname As String)
+    Dim ar() As SqlParameter
+    Dim dr As SqlDataReader
+    today = Now()
+    Try
+      _sqcPrices.Open()
+      ar = DAL.NetDB.SqlHelperParameterCache.GetSpParameterSet(_sqcPrices, spname)
+      ar(0).Value = "max(db_dt)"
+      ar(1).Value = "db_ticker_id = " & db_ticker_id
+      dr = DAL.NetDB.ExecuteReader(_sqcPrices, Data.CommandType.StoredProcedure, spname, ar)
+      If dr.HasRows Then
+        While dr.Read
+          ed = dr(0)
+          ed = DateAdd(DateInterval.Day, 1, ed)
+          a = Month(ed)
+          b = Day(ed)
+          c = Year(ed)
+          d = Month(today)
+          e = Day(today)
+          f = Year(today)
 
-                End While
-            Else
-                a = 1
-                b = 1
-                c = 2001
+        End While
+      Else
+        a = 1
+        b = 1
+        c = 2001
 
-                d = Month(today)
-                e = Day(today)
-                f = Year(today)
-            End If
-        Catch ex As Exception
-            a = 1
-            b = 1
-            c = 2001
+        d = Month(today)
+        e = Day(today)
+        f = Year(today)
+      End If
+    Catch ex As Exception
+      a = 1
+      b = 1
+      c = 2001
 
-            d = Month(today)
-            e = Day(today)
-            f = Year(today)
-        Finally
-            _sqcPrices.Close()
-        End Try
+      d = Month(today)
+      e = Day(today)
+      f = Year(today)
+    Finally
+      _sqcPrices.Close()
+    End Try
 
-    End Function
-    Private Sub downloadFromURL(ByVal URL As String, ByVal localPath As String)
-        Dim myWebClient As New WebClient
-        Console.Write("Downloading from " & URL & " to " & localPath & " .....")
+  End Function
+  Private Sub downloadFromURL(ByVal URL As String, ByVal localPath As String)
+    Dim myWebClient As New WebClient
+    Console.Write("Downloading from " & URL & " to " & localPath & " .....")
     If (File.Exists(localPath) = True) Then
       File.Delete(localPath)
-    Else
-      myWebClient.Headers.Add("cookie", g_Cookie)
-      myWebClient.DownloadFile(URL, localPath)
-      Dim bytes() = myWebClient.DownloadData(URL)
-        If (bytes.Length > 0) Then
-            Console.WriteLine(" bytes= " + Convert.ToString(bytes.Length))
-            File.WriteAllBytes(localPath, bytes)
-        End If
-        myWebClient.Dispose()
     End If
+    'myWebClient.Headers.Add("cookie", g_Cookie)
+    myWebClient.DownloadFile(URL, localPath)
+      Dim bytes() = myWebClient.DownloadData(URL)
+      If (bytes.Length > 0) Then
+        Console.WriteLine(" bytes= " + Convert.ToString(bytes.Length))
+      File.WriteAllBytes(localPath, bytes.ToArray.Skip(3).Take(bytes.Length).ToArray())
+    End If
+      myWebClient.Dispose()
 
   End Sub
 
-    Private Sub ProcBSEFn(ByVal strTabName As String, ByVal ticker_id As Integer, ByVal fn As String, ByVal dbDir As String)
-        Dim dr As OleDbDataReader
-        Dim arAdd() As SqlParameter
-        Dim nRecs As Integer
-        Try
-            If ReadTab(strTabName, dr, fn, _sqcCSV, nRecs) = False Then
-                Throw New ApplicationException(fn & " could not be read.")
-            End If
-            _sqcPrices.Open()
-            If dr.HasRows Then
-                arAdd = DAL.NetDB.SqlHelperParameterCache.GetSpParameterSet(_sqcPrices, "csp_tbl_BSE_Prices_Add")
-                While dr.Read
-                    SetSQLParmVal(arAdd, "@db_ticker_id", ticker_id)
-                    SetSQLParmVal(arAdd, "@db_volume", 0)
-                    SetSQLParmVal(arAdd, "@db_dt", dr("Date"))
-                    If (ticker_id = 1) Then 'BSE Index
-                        SetSQLParmVal(arAdd, "@db_close", dr("Close"))
-                    Else
-                        SetSQLParmVal(arAdd, "@db_close", dr("Close Price"))
-                    End If
+  Private Sub ProcBSEFn(ByVal strTabName As String, ByVal ticker_id As Integer, ByVal fn As String, ByVal dbDir As String)
+    Dim dr As OleDbDataReader
+    Dim arAdd() As SqlParameter
+    Dim nRecs As Integer
+    Try
+      If ReadTab(strTabName, dr, fn, _sqcCSV, nRecs) = False Then
+        Throw New ApplicationException(fn & " could not be read.")
+      End If
+      _sqcPrices.Open()
+      If dr.HasRows Then
+        arAdd = DAL.NetDB.SqlHelperParameterCache.GetSpParameterSet(_sqcPrices, "csp_tbl_BSE_Prices_Add")
+        While dr.Read
+          SetSQLParmVal(arAdd, "@db_ticker_id", ticker_id)
+          SetSQLParmVal(arAdd, "@db_volume", 0)
+          SetSQLParmVal(arAdd, "@db_dt", dr("Date"))
+          If (ticker_id = 1) Then 'BSE Index
+            SetSQLParmVal(arAdd, "@db_close", dr("Close"))
+          Else
+            SetSQLParmVal(arAdd, "@db_close", dr("Close Price"))
+          End If
 
-                    DAL.NetDB.ExecuteScalar(_sqcPrices, CommandType.StoredProcedure, "csp_tbl_BSE_Prices_Add", arAdd)
-                End While
-            End If
-        Catch ex As Exception
-            'Throw ex
-        Finally
-            _sqcPrices.Close()
-            dr.Close()
-        End Try
-    End Sub
+          DAL.NetDB.ExecuteScalar(_sqcPrices, CommandType.StoredProcedure, "csp_tbl_BSE_Prices_Add", arAdd)
+        End While
+      End If
+    Catch ex As Exception
+      'Throw ex
+    Finally
+      _sqcPrices.Close()
+      dr.Close()
+    End Try
+  End Sub
   Private Sub ProcFn(ByVal strTabName As String, ByVal ticker_id As Integer, ByVal typ As Integer, ByVal fn As String, ByVal dbDir As String)
     Dim dr As OleDbDataReader
     Dim arAdd() As SqlParameter
@@ -328,7 +328,7 @@ Module GetPrices
             SetSQLParmVal(arAdd, "@db_volume", dr("Volume"))
           End If
           SetSQLParmVal(arAdd, "@db_dt", dr("Date"))
-          SetSQLParmVal(arAdd, "@db_close", dr("Adj Close"))
+          SetSQLParmVal(arAdd, "@db_close", dr("Close"))
           SetSQLParmVal(arAdd, "@db_type", typ)
           DAL.NetDB.ExecuteScalar(_sqcPrices, CommandType.StoredProcedure, "csp_tbl_Prices_Add", arAdd)
           'Else
@@ -341,7 +341,7 @@ Module GetPrices
         End While
       End If
     Catch ex As Exception
-      sql = "update tbl_Prices set db_close = " & dr("Adj Close")
+      sql = "update tbl_Prices set db_close = " & dr("Close")
       sql = sql & " where db_ticker_id = " & ticker_id
       sql = sql & " and db_dt = '" & dr("Date") & "'"
       DAL.NetDB.ExecuteScalar(_sqcPrices, CommandType.Text, sql)
