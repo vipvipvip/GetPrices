@@ -1,1 +1,2 @@
-&startdate=Jun+17%2C+2017&enddate=Jun+24%2C+2017&num=30&ei=I6pOWbmBMZKCmAH0kIDoDA&output=csv
+period1=978152400&period2=1507262400&interval=1d&events=history&crumb=oiCNIVG4UqH
+B=8458l2dclo3hl&b=3&s=k7; PRF=t%3DSPY%252BAAPL

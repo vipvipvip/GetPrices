@@ -33,6 +33,17 @@ FROM       tbl_Trades
 ORDER BY bdate, sdate, strTicker
 
 */
+/*
+Calc monthly return
+declare @s varchar(10) = 'edv'
+select db_ticker_id, db_dt, db_close, lead(db_close,1,0) over (order by db_dt) as p12, convert(dec(9,4), (lead(db_close,1,db_close) over (order by db_dt)/db_close)-1) as ret
+from tbl_Prices
+where db_dt in (SELECT dt from tbl_Return_Rank where strTicker='SPY' and dt>='11-30-2005')
+and db_ticker_id = (select db_ticker_id from tbl_Ticker where db_strTicker = @s)
+and db_dt >= '11-30-2005'
+order by db_dt
+
+*/
 
 /*
 
@@ -50,35 +61,32 @@ select distinct(T.db_ticker_id), T.db_type, max(P.db_dt),T.db_strTicker
 from tbl_Prices P, tbl_Ticker T
 where P.db_ticker_id = T.db_ticker_id
 and T.db_type=2
-and P.db_dt >= '2017-5-19'
+and P.db_dt >= '2017-9-03'
 group by T.db_ticker_id, T.db_type, T.db_strTicker
 order by max(db_dt) desc, db_strTicker
-
-declare @sdt1 datetime
-
-select @sdt1 = max(db_dt)
-from tbl_Prices
-where db_ticker_id = 538
-
-select @sdt1
 
 select T.db_strticker, max(db_dt)
 from tbl_Prices P, tbl_Ticker T
 where P.db_ticker_id = T.db_ticker_id
 and T.db_type=1
-and P.db_dt = @sdt1
+and P.db_dt = (select max(db_dt) from tbl_Prices where db_type=1)
 group by T.db_strticker, P.db_dt
-order by P.db_dt
+order by P.db_dt, T.db_strTicker desc
+
+
+select * from tbl_Prices
+where db_ticker_id = 6273
+order by db_dt desc
 
 
 --delete from tbl_Prices
---where db_dt >= '6-02-2017'
---and db_type=1
+--where db_dt >= '6-17-2017'
+--and db_type=2
 
-select P.db_row_id, P.db_dt, P.db_close
+select P.db_row_id, P.db_dt, P.db_close, P.db_ticker_id
 from tbl_Prices P, tbl_Ticker T
 where P.db_ticker_id = T.db_ticker_id
-and T.db_strTicker = 'MTUM'
+and T.db_strTicker = 'SPY'
 --and db_dt = (select max(db_dt) from tbl_Prices)
 --and db_dt = @sdt1
 --and T.db_ticker_id = 454
@@ -150,7 +158,7 @@ and db_dt >= '1-1-2001'
 where P.db_ticker_id is null
 
 declare @tid int
-set @tid = 130
+set @tid = 6273
 delete from tbl_Prices
 where db_ticker_id in ( @tid)
 delete from tbl_FiveNum
@@ -206,7 +214,7 @@ declare @tbl table (s varchar(50))
 
 insert @tbl
 EXEC	[dbo].[csp_ReadCSV]
-		@filename = N'ishares_Factor.csv',
+		@filename = N'CNBC-IQ100.csv',
 		@dbDir = N'c:\stockmon',
 		@whereclause = N'1=1'
 
@@ -215,7 +223,7 @@ delete from @tbl where s like '%--%'
 delete from @tbl where s like '%/%'
 
 insert tbl_Ticker
-select s, 2, null, '6/4/2017' from  @tbl 
+select s, 1, null, '7/04/2017' from  @tbl 
 left outer join tbl_Ticker T on T.db_strTicker = s
 where db_strTicker is null
 order by T.db_strTicker

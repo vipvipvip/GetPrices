@@ -6,41 +6,41 @@ Imports System.Data.OleDb
 
 
 Module GetPrices
-    'Private Const URL As String = "http://www2.standardandpoors.com/servlet/Satellite?pagename=spcom/page/DownloadDataTab&dt=<DateField>&indexcode=500"
-    'Private Const URL As String = "http://ichart.finance.yahoo.com/table.csv?d=&e=&f=&g=d&a=0&b=22&c=1999&ignore=.csv&s="
-    'Private Const URL As String = "http://ichart.finance.yahoo.com/table.csv?ignore=.csv&g=d"
-    Private Const URL As String = "http://real-chart.finance.yahoo.com/table.csv?ignore=.csv&g=d"
-    Private Const BSE_STK_URL As String = "http://www.bseindia.com/stockinfo/stockprc2_excel.aspx?"
-    Private Const BSE_INDEX_URL As String = "http://www.bseindia.com/stockinfo/indices_main_excel.aspx?ind=BSE500&DMY=D"
+  'Private Const URL As String = "http://www2.standardandpoors.com/servlet/Satellite?pagename=spcom/page/DownloadDataTab&dt=<DateField>&indexcode=500"
+  'Private Const URL As String = "http://ichart.finance.yahoo.com/table.csv?d=&e=&f=&g=d&a=0&b=22&c=1999&ignore=.csv&s="
+  'Private Const URL As String = "http://ichart.finance.yahoo.com/table.csv?ignore=.csv&g=d"
+  Private Const URL As String = "http://real-chart.finance.yahoo.com/table.csv?ignore=.csv&g=d"
+  Private Const BSE_STK_URL As String = "http://www.bseindia.com/stockinfo/stockprc2_excel.aspx?"
+  Private Const BSE_INDEX_URL As String = "http://www.bseindia.com/stockinfo/indices_main_excel.aspx?ind=BSE500&DMY=D"
 
-    Private Const DATADIR As String = "c:\temp\Prices\"
-    Private _oDAL As New DAL.NetDB
-    Private _sqcSQL As New SqlConnection
-    Private _sqcCSV As New OleDbConnection
-    Private _sqcPrices As New SqlConnection
-    Private g_ticker_id As Integer
-    Private g_type As Integer '1=US Stocks, 2=ETF
-    Private g_Mode As String
-    Private g_Action As Integer
+  Private Const DATADIR As String = "c:\temp\Prices\"
+  Private _oDAL As New DAL.NetDB
+  Private _sqcSQL As New SqlConnection
+  Private _sqcCSV As New OleDbConnection
+  Private _sqcPrices As New SqlConnection
+  Private g_ticker_id As Integer
+  Private g_type As Integer '1=US Stocks, 2=ETF
+  Private g_Mode As String
+  Private g_Action As Integer
   Private g_startTick As String
   Private g_P1 As String
   Private g_P2 As String
   Private g_Cookie As String
 
   Dim sd As DateTime = "1-1-2006"
-    Dim ed As DateTime = "12-31-2020"
-    Dim a, b, c, d, e, f As Integer
-    Dim today As DateTime
-    Sub Main(ByVal CmdArgs() As String)
-        Dim arg As String = ""
-        Dim strTicker As String = ""
-        Dim i As Integer = 0
-        Dim argArr As String()
-        Dim dnload As Integer = 1
-        g_type = 0
-        g_ticker_id = -1
-        g_Action = 1
-        g_startTick = ""
+  Dim ed As DateTime = "12-31-2020"
+  Dim a, b, c, d, e, f As Integer
+  Dim today As DateTime
+  Sub Main(ByVal CmdArgs() As String)
+    Dim arg As String = ""
+    Dim strTicker As String = ""
+    Dim i As Integer = 0
+    Dim argArr As String()
+    Dim dnload As Integer = 1
+    g_type = 0
+    g_ticker_id = -1
+    g_Action = 1
+    g_startTick = ""
     For i = 0 To CmdArgs.Length - 1
       arg = CmdArgs(i).Trim()
       argArr = arg.Split("=")
@@ -72,12 +72,12 @@ Module GetPrices
     idx = 1
     For Each line As String In File.ReadLines("cookie.txt")
       Select Case idx
-        'Case 1
-        '  g_P1 = line
-        'Case 2
-        '  g_P2 = line
         Case 1
           g_Cookie = line
+        Case 2
+          g_P2 = line
+          'Case 1
+          '        g_Cookie = line
       End Select
       idx = idx + 1
     Next line
@@ -125,7 +125,8 @@ Module GetPrices
           End If
           'strUT = URL & "&a=" & a & "&b=" & b & "&c=" & c & "&d=" & d & "&e=" & e & "&f=" & f & "&s=" & strTicker
           'strUT = "http://query1.finance.yahoo.com/v7/finance/download/" & strTicker & "?period1=" & g_P1 & "&period2=" & g_P2 & "&interval=1d&events=history&crumb=IhF8o1JyWko"
-          strUT = "https://www.google.com/finance/historical?q=" & strTicker & g_Cookie
+          'strUT = "https://www.google.com/finance/historical?q=" & strTicker & g_Cookie
+          strUT = "https://query1.finance.yahoo.com/v7/finance/download/" & strTicker & "?" & g_Cookie
           fn = DATADIR & Replace(strTicker, ".", "_") & ".csv"
           Try
             If (dnload <> 0) Then downloadFromURL(strUT, fn)
@@ -259,18 +260,19 @@ Module GetPrices
   End Function
   Private Sub downloadFromURL(ByVal URL As String, ByVal localPath As String)
     Dim myWebClient As New WebClient
-    Console.Write("Downloading from " & URL & " to " & localPath & " .....")
+    Console.Write("Downloading from " & URL & " To " & localPath & " .....")
     If (File.Exists(localPath) = True) Then
       File.Delete(localPath)
     End If
-    'myWebClient.Headers.Add("cookie", g_Cookie)
+    myWebClient.Headers.Add("cookie", g_P2)
     myWebClient.DownloadFile(URL, localPath)
-      Dim bytes() = myWebClient.DownloadData(URL)
-      If (bytes.Length > 0) Then
-        Console.WriteLine(" bytes= " + Convert.ToString(bytes.Length))
-      File.WriteAllBytes(localPath, bytes.ToArray.Skip(3).Take(bytes.Length).ToArray())
+    Dim bytes() = myWebClient.DownloadData(URL)
+    If (bytes.Length > 0) Then
+      Console.WriteLine(" bytes= " + Convert.ToString(bytes.Length))
+      'File.WriteAllBytes(localPath, bytes.ToArray.Skip(3).Take(bytes.Length).ToArray())
+      File.WriteAllBytes(localPath, bytes.ToArray.Take(bytes.Length).ToArray())
     End If
-      myWebClient.Dispose()
+    myWebClient.Dispose()
 
   End Sub
 
@@ -280,7 +282,7 @@ Module GetPrices
     Dim nRecs As Integer
     Try
       If ReadTab(strTabName, dr, fn, _sqcCSV, nRecs) = False Then
-        Throw New ApplicationException(fn & " could not be read.")
+        Throw New ApplicationException(fn & " could Not be read.")
       End If
       _sqcPrices.Open()
       If dr.HasRows Then
@@ -313,38 +315,41 @@ Module GetPrices
     Dim nRecs As Integer
     Try
       If ReadTab(strTabName, dr, fn, _sqcCSV, nRecs) = False Then
-        Throw New ApplicationException(fn & " could not be read.")
+        Throw New ApplicationException(fn & " could Not be read.")
       End If
       _sqcPrices.Open()
       If dr.HasRows Then
         arAdd = DAL.NetDB.SqlHelperParameterCache.GetSpParameterSet(_sqcPrices, "csp_tbl_Prices_Add")
         While dr.Read
-          '          nRecs = DAL.NetDB.ExecuteScalar(_sqcPrices, CommandType.Text, "select count(*) from tbl_Prices where db_ticker_id = " & ticker_id & " and db_dt = '" & dr("Date") & "'")
-          '          If nRecs <= 0 Then
-          SetSQLParmVal(arAdd, "@db_ticker_id", ticker_id)
-          If (dr("Volume") >= 2147483647) Then
-            SetSQLParmVal(arAdd, "@db_volume", 0)
-          Else
-            SetSQLParmVal(arAdd, "@db_volume", dr("Volume"))
-          End If
-          SetSQLParmVal(arAdd, "@db_dt", dr("Date"))
-          SetSQLParmVal(arAdd, "@db_close", dr("Close"))
-          SetSQLParmVal(arAdd, "@db_type", typ)
-          DAL.NetDB.ExecuteScalar(_sqcPrices, CommandType.StoredProcedure, "csp_tbl_Prices_Add", arAdd)
-          'Else
-          '  sql = "update tbl_Prices set db_close = " & dr("Adj Close")
-          '  sql = sql & " where db_ticker_id = " & ticker_id
-          '  sql = sql & " and db_dt = '" & dr("Date") & "'"
-          '  DAL.NetDB.ExecuteScalar(_sqcPrices, CommandType.Text, sql)
-          'End If
+          'nRecs = DAL.NetDB.ExecuteScalar(_sqcPrices, CommandType.Text, "Select count(*) from tbl_Prices where db_ticker_id = " & ticker_id & " And db_dt = '" & dr("Date") & "'")
+          'If nRecs <= 0 Then
+          Try
+            SetSQLParmVal(arAdd, "@db_ticker_id", ticker_id)
+            If (dr("Volume") >= 2147483647) Then
+              SetSQLParmVal(arAdd, "@db_volume", 0)
+            Else
+              SetSQLParmVal(arAdd, "@db_volume", dr("Volume"))
+            End If
+            SetSQLParmVal(arAdd, "@db_dt", dr("Date"))
+            SetSQLParmVal(arAdd, "@db_close", dr("Adj Close"))
+            SetSQLParmVal(arAdd, "@db_type", typ)
+            DAL.NetDB.ExecuteScalar(_sqcPrices, CommandType.StoredProcedure, "csp_tbl_Prices_Add", arAdd)
+            'Else
+          Catch ex As Exception
+            sql = "update tbl_Prices set db_close = " & dr("Adj Close")
+            sql = sql & " where db_ticker_id = " & ticker_id
+            sql = sql & " and db_dt = '" & dr("Date") & "'"
+            DAL.NetDB.ExecuteScalar(_sqcPrices, CommandType.Text, sql)
+            'End If
+          End Try
 
         End While
       End If
     Catch ex As Exception
-      sql = "update tbl_Prices set db_close = " & dr("Close")
-      sql = sql & " where db_ticker_id = " & ticker_id
-      sql = sql & " and db_dt = '" & dr("Date") & "'"
-      DAL.NetDB.ExecuteScalar(_sqcPrices, CommandType.Text, sql)
+      'Sql = "update tbl_Prices set db_close = " & dr("Adj Close")
+      'Sql = sql & " where db_ticker_id = " & ticker_id
+      'sql = sql & " and db_dt = '" & dr("Date") & "'"
+      'DAL.NetDB.ExecuteScalar(_sqcPrices, CommandType.Text, sql)
     Finally
       _sqcPrices.Close()
       dr.Close()
