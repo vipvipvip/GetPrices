@@ -262,7 +262,9 @@ Module GetPrices
     Dim myWebClient As New WebClient
     Console.Write("Downloading from " & URL & " To " & localPath & " .....")
     If (File.Exists(localPath) = True) Then
-      File.Delete(localPath)
+      'File.Delete(localPath)
+      myWebClient.Dispose()
+      Return
     End If
     myWebClient.Headers.Add("cookie", g_P2)
     myWebClient.DownloadFile(URL, localPath)
@@ -310,20 +312,22 @@ Module GetPrices
   Private Sub ProcFn(ByVal strTabName As String, ByVal ticker_id As Integer, ByVal typ As Integer, ByVal fn As String, ByVal dbDir As String)
     Dim dr As OleDbDataReader
     Dim arAdd() As SqlParameter
+    Dim arAdd2() As SqlParameter
     Dim wc As String = "1=1"
     Dim sql As String
     Dim nRecs As Integer
+    Dim aCmd As SqlCommand
     Try
       If ReadTab(strTabName, dr, fn, _sqcCSV, nRecs) = False Then
         Throw New ApplicationException(fn & " could Not be read.")
       End If
-      _sqcPrices.Open()
       If dr.HasRows Then
-        arAdd = DAL.NetDB.SqlHelperParameterCache.GetSpParameterSet(_sqcPrices, "csp_tbl_Prices_Add")
         While dr.Read
           'nRecs = DAL.NetDB.ExecuteScalar(_sqcPrices, CommandType.Text, "Select count(*) from tbl_Prices where db_ticker_id = " & ticker_id & " And db_dt = '" & dr("Date") & "'")
           'If nRecs <= 0 Then
           Try
+            _sqcPrices.Open()
+            arAdd = DAL.NetDB.SqlHelperParameterCache.GetSpParameterSet(_sqcPrices, "csp_tbl_Prices_Add")
             SetSQLParmVal(arAdd, "@db_ticker_id", ticker_id)
             If (dr("Volume") >= 2147483647) Then
               SetSQLParmVal(arAdd, "@db_volume", 0)
@@ -342,6 +346,7 @@ Module GetPrices
             DAL.NetDB.ExecuteScalar(_sqcPrices, CommandType.Text, sql)
             'End If
           End Try
+          _sqcPrices.Close()
 
         End While
       End If
